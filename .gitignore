@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+services/.venv/
+
+# Build output
+dist/
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# SWMM generated artifacts (scripts/)
+scripts/*.inp
+scripts/*.out
+scripts/*.rpt
+
+# Experiment outputs (regenerable)
+scripts/*_results.json
+scripts/extended_results.json
+scripts/real_event_prediction.json
+scripts/real_event_scores.json
+scripts/swmm_grid.json
+scripts/kolkata_real_network.json
+
+# OS / editor
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/
+*.swp

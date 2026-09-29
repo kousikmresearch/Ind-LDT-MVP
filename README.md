@@ -76,10 +76,8 @@ india-ldt-mvp/
 │   └── hooks/            # live-data hooks
 ├── services/             # FastAPI backend
 │   ├── kolkata/          # SWMM flood model + router
-│   ├── dvc/              # pandapower network + router
 │   └── shared/           # pydantic models
 ├── scripts/              # research experiments & figures
-├── docs/                 # SRS, proposal, paper, figures
 ├── public/               # static assets (geojson, plot html)
 ├── run-backend.bat/.sh   # backend launcher
 └── package.json

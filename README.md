@@ -64,32 +64,6 @@ This creates `services/.venv`, installs `services/requirements.txt`, and starts
 uvicorn on `http://0.0.0.0:8000`. The frontend auto-detects the backend and
 falls back to local simulated data when it is unreachable.
 
-### 3. Research experiments
-
-```bash
-services\.venv\Scripts\python.exe scripts\train_surrogate.py      # surrogate + LOSO
-services\.venv\Scripts\python.exe scripts\extended_experiments.py  # CQR + BO + RL
-services\.venv\Scripts\python.exe scripts\real_network_study.py    # 141-ward study
-services\.venv\Scripts\python.exe scripts\make_figures.py          # paper figures
-```
-
-Outputs are written to `scripts/*.json` and `docs/papers/figures/*.png`.
-
-## Research output
-
-The repository produces the manuscript
-**"A hybrid physics–ML surrogate for real-time urban pluvial flood nowcasting
-in data-scarce Indian cities"** (`docs/papers/hybrid_surrogate_flood_nowcasting.md`),
-with a companion glossary (`docs/papers/paper_glossary.md`) and six figures.
-Key results:
-
-- Direct GBDT surrogate: MAE 0.020 m, R² 0.985 (10-ward synthetic network)
-- Real 141-ward network: MAE 0.133 m, R² 0.954
-- Conformal calibration lifts interval coverage from ~57% to ~85% (nominal 80%)
-- Q-learning pump control cuts cumulative flooding ~90% vs always-off
-
-See `docs/papers/paper_glossary.md` for term definitions.
-
 ## Project layout
 
 ```

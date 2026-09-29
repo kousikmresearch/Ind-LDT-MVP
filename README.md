@@ -1,32 +1,23 @@
-# India Local Digital Twin (LDT) Toolbox — MVP
+# India LDT Simulation Backend
 
-A national, open-source toolbox for building **Local Digital Twins** of Indian
-cities. The MVP ships two working demonstrations — **Kolkata urban flood** and
-**DVC power transmission** — plus a digital-twin maturity assessor, a solutions
-catalogue, and a knowledge centre, all wrapped in a local-first React SPA with
-an optional FastAPI simulation backend.
+Python FastAPI backend that integrates open-source simulation engines with the India LDT MVP.
 
-## What's inside
+- **DVC power grid**: [pandapower](https://pandapower.readthedocs.io/)
+- **Kolkata urban flood**: [SWMM](https://www.epa.gov/water-research/storm-water-management-model-swmm) via [pyswmm](https://pyswmm.readthedocs.io/) and [swmmio](https://swmmio.readthedocs.io/)
 
-| Layer | Stack | Location |
-|---|---|---|
-| Frontend SPA | React 18 + TypeScript + Vite + Tailwind | `src/` |
-| Simulation backend | FastAPI + PySWMM + pandapower | `services/` |
-| Research experiments | scikit-learn + matplotlib + PySWMM | `scripts/` |
-| Manuscript & figures | Markdown + DOCX + PNG | `docs/papers/` |
+## Quick start
 
-### Frontend pages
+```bash
+# From the repo root
+python -m venv services\.venv
+services\.venv\Scripts\activate
+pip install -r services\requirements.txt
 
-- **Home** — overview and entry points
-- **Solutions Catalogue** — browse tools, algorithms, datasets
-- **DT Maturity Assessor** — interactive readiness assessment
-- **Use Cases** — sector-specific scenarios
-- **Knowledge Centre** — documents, tutorials, standards
-- **Glossary** — digital-twin terminology
-- **Kolkata Demo** — flood / crowd / IUDX / alerts / simulation / 3D ward view
-- **DVC Demo** — power-flow, economic dispatch, N-1 contingency
+# Run the server
+uvicorn services.main:app --reload --port 8000
+```
 
-### Backend endpoints
+## Endpoints
 
 | Method | Path | Description |
 |---|---|---|
@@ -37,56 +28,35 @@ an optional FastAPI simulation backend.
 | `POST` | `/kolkata/flood` | SWMM-aware flood simulation |
 | `GET`  | `/kolkata/flood` | Flood simulation via query params |
 
-The backend always returns a deterministic heuristic result and, when
-`pyswmm`+`swmmio` are installed, additionally executes a real SWMM run.
-
-## Quick start
-
-### 1. Frontend
+## Example calls
 
 ```bash
-npm install
-npm run dev          # http://localhost:5173
-# or production build
-npm run build && npm run preview
+# DVC dispatch
+curl -X POST "http://localhost:8000/dvc/dispatch" \
+  -H "Content-Type: application/json" \
+  -d '{"demand": 3240, "solar_share": 100, "hydro_share": 100}'
+
+# Kolkata flood (set include_inp=true to get a SWMM .inp file)
+curl -X POST "http://localhost:8000/kolkata/flood" \
+  -H "Content-Type: application/json" \
+  -d '{"rainfall": 150, "duration": 3, "include_inp": true}'
 ```
 
-### 2. Backend (optional, enables live simulation)
+## Architecture
 
-```bash
-# Windows
-run-backend.bat
-# Linux/macOS
-./run-backend.sh
-```
+- `dvc/network.py` builds a simplified pandapower model from the DVC dataset.
+- `kolkata/swmm_model.py` generates a SWMM-compatible `.inp` and, when `pyswmm` is installed, executes it; a deterministic fallback is always available so the backend is usable without a SWMM binary.
+- `main.py` wires the routers and enables CORS for the Vite dev server.
 
-This creates `services/.venv`, installs `services/requirements.txt`, and starts
-uvicorn on `http://0.0.0.0:8000`. The frontend auto-detects the backend and
-falls back to local simulated data when it is unreachable.
+## Frontend integration
 
-## Project layout
+The Vite app expects the backend on `http://localhost:8000`. CORS is already configured for the default Vite ports.
 
-```
-india-ldt-mvp/
-├── src/                  # React frontend
-│   ├── pages/            # one file per route
-│   ├── components/       # 3D views, feed panels
-│   ├── data/             # static demo data
-│   ├── api/              # live-feed clients
-│   └── hooks/            # live-data hooks
-├── services/             # FastAPI backend
-│   ├── kolkata/          # SWMM flood model + router
-│   └── shared/           # pydantic models
-├── scripts/              # research experiments & figures
-├── public/               # static assets (geojson, plot html)
-├── run-backend.bat/.sh   # backend launcher
-└── package.json
-```
+### Using the backend simulation in the UI
 
-## Notes
-
-- The SWMM drainage model is a **reduced-order, ward-aggregated** network, not a
-  fully calibrated municipal drainage model. Validation against the 2 Sep 2023
-  Kolkata event is preliminary and documented in the paper.
-- The frontend works fully without the backend (simulation fallback).
-- Licensed under Apache 2.0.
+1. Open the **Kolkata** or **DVC** demo.
+2. Click **Live On** in the header — this toggles the feed config `enabled` state.
+3. The `simulation` feed is enabled by default and calls `http://localhost:8000`.
+4. When the backend is active, the status pill shows `Live · Backend Simulation`.
+5. If the backend is unreachable, the frontend falls back to local simulated data and shows a `Live Error` badge.
+6. Click **Simulate** to force local simulation, or use **Feeds** to adjust the `simulation` base URL or disable it.

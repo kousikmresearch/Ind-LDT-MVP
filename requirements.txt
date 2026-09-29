@@ -1,0 +1,7 @@
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+pandapower>=2.14.0
+pydantic>=2.0.0
+pyswmm>=2.1.0
+swmmio>=0.7.0
+python-multipart>=0.0.9
